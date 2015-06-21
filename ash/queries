@@ -91,3 +91,29 @@ ME: {
     ;
   }
 }
+
+
+
+TAIL: {
+  description: "Select the history of latest commands."
+  sql: {
+    select
+      c.cwd as 'current_working_dir',
+      c.command_no as 'cmd',
+      datetime(c.start_time, 'unixepoch', 'localtime') as start_time,
+      c.duration as 'secs',
+      c.rval as exit,
+      c.command
+    from
+      commands as c
+      left outer join sessions as s
+        on c.session_id = s.id
+    where
+      c.start_time > strftime('%s', 'now', '${ASH_START_TIME}') 
+	and c.command like '%${ASH_CMD_GREP}%'
+    order by
+      c.id
+    ;
+  }
+}
+
